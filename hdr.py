@@ -20,6 +20,9 @@ class hdrGAN:
            with tf.variable_scope("generator")  as scope: 
 
             model=tf.keras.Sequential()
+       ############################################################ down sampling layers ############################
+       
+       
                # first block 
        
             model.add(tfl.Conv2D(filters=64,kernel_size=(10,10),strides=(2,2),padding='same',name='conv_block1'))

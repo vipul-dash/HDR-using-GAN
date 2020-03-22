@@ -71,7 +71,28 @@ def compute_response_curve(intensites,log_exposure_times,weighting_func,smooth_l
 
     return g[:,0]
 
-    
+
+
+def radiance_map(images,compute_response_curve,weighting_func,log_exposure_times)
+  num_images_=len(log_expo(sure_times)
+  img_shape=images[0].shape
+  image_radiance_map =np.zeros(img_shape,dtype=np.float64)
+  
+  for i in range(img_shape[0]):
+      for j in  range(img_shape[1]):
+          
+
+          g = np.array([compute_response_curve(images[k][i,j]) for k in range(num_images) ])
+          w=  np.array([weighting_func(images[k][i,j] )for k in range(num_images)   ])
+
+          weight_sum=np.sum(w)
+          if sum > 0: 
+            image_radiance_map[i,j]=  np.sum(w* (g - log_exposure_times)/weight_sum)
+          else 
+            image_radiance_map[i,j]=np.sum(g[num_images//2] - log_exposure_times[num_images//2])            
+  return image_radiance_map  
+
+     
      
 
     

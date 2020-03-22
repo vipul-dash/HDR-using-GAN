@@ -1,7 +1,7 @@
 import numpy as np 
 
 def weights(pixel_values):
-
+#the weighting function for calculating weights from pixels
  zmin,zmax=0,255
 
  z=np.random.randint(zmin,zmax)
@@ -16,6 +16,7 @@ def weights(pixel_values):
     w=zmax-z
 
 def sample_pixels(images):
+     # sampling the pixels from images 
       zmin,zmax=0,255
 
       num_images=len(images)
@@ -33,7 +34,7 @@ def sample_pixels(images):
       return intensites
 
 def compute_response_curve(intensites,log_exposure_times,weighting_func,smooth_lambda ): 
-
+# get the response curve 
     zmin,zmax=0,255
     num_images=len(log_exposure_times)
     num_samples=len(intensites.shape[0])
@@ -74,6 +75,7 @@ def compute_response_curve(intensites,log_exposure_times,weighting_func,smooth_l
 
 
 def radiance_map(images,compute_response_curve,weighting_func,log_exposure_times):
+ #get the radiance map from the response curve
   num_images_=len(log_exposure_times)
   img_shape =images[0].shape
   image_radiance_map =np.zeros(img_shape,dtype=np.float64)

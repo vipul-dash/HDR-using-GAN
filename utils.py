@@ -97,7 +97,8 @@ def radiance_map(images,compute_response_curve,weighting_func,log_exposure_times
 
 def local_tone_mapping(image,gamma):
      # gamma is an 2d array of the same shape as of image and contains the gamma values for each pixels
-
+     #http://cs.brown.edu/courses/cs129/results/proj5/njooma/
+     #https://en.wikipedia.org/wiki/Tone_mapping
      rows,cols=image.shape[0],image.shape[1]
      assert image.shape==gamma.shape
      for i in range(rows):

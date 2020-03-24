@@ -105,6 +105,8 @@ def local_tone_mapping(image,gamma):
          for j in range(cols):
 
              image[i][j]=math.pow(image[i][j],gamma[i][j])
+
+     # each pixel is tone mapped differently accoring to location         
              
      
 

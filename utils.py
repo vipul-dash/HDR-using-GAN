@@ -1,5 +1,5 @@
 import numpy as np 
-
+import math
 def weights(pixel_values):
 #the weighting function for calculating weights from pixels
  zmin,zmax=0,255
@@ -94,7 +94,17 @@ def radiance_map(images,compute_response_curve,weighting_func,log_exposure_times
             image_radiance_map[i,j]=np.sum(g[num_images//2] - log_exposure_times[num_images//2])            
   return image_radiance_map  
 
-     
+
+def local_tone_mapping(image,gamma):
+     # gamma is an 2d array of the same shape as of image and contains the gamma values for each pixels
+
+     rows,cols=image.shape[0],image.shape[1]
+     assert image.shape==gamma.shape
+     for i in range(rows):
+         for j in range(cols):
+
+             image[i][j]=math.pow(image[i][j],gamma[i][j])
+             
      
 
     

@@ -90,6 +90,8 @@ class hdrGAN:
 
 
             model.add(tfl.Conv2DTranspose(filters=3,kernel_size=(10,10)),strides=(2,2),padding='same',name='deconvolution layer')
+
+           return model              
  
 
                          

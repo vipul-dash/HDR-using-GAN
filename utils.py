@@ -18,6 +18,7 @@ def weights(pixel_values):
  else:
 
     w=zmax-z
+ return w    
 
 def sample_pixels(images):
      # sampling the pixels from images 
@@ -29,10 +30,10 @@ def sample_pixels(images):
       intensites=np.zeros((num_intensities,num_images,3),dtype=np.int64)
      # intensites=[]
       mid_img=images[math.ceil(num_images/2)]
-      print(mid_img.shape)
+      #print(mid_img.shape)
       for i in range(zmin,zmax+1):
         rows,cols=mid_img.shape[0],mid_img.shape[1]
-        print('rows : {}  cols {}'.format(rows,cols))
+        #print('rows : {}  cols {}'.format(rows,cols))
         if((rows)!=0):
             idxi=np.random.randint((rows))
             idxj=np.random.randint((cols))
@@ -40,7 +41,7 @@ def sample_pixels(images):
                 image=images[j]
                # print(i,j)
                 pixel=image[idxi][idxj]
-                print(pixel)
+                #print(pixel)
                 for k in range(3):
                  intensites[i][j][k]=pixel[k]
                  
@@ -59,8 +60,9 @@ def compute_response_curve(intensites,log_exposure_times,weighting_func,smooth_l
     
     for i in range(num_samples):
         for j in range(num_images):
-            zij=intensites[i,j]
+            zij=intensites[i][j]
             wij=weighting_func(zij)
+            
             mat_A[k,zij]=wij
             mat_A[k,(intensity_range+1)+i]=-wij
             mat_B[k,0]= wij*log_exposure_times[j]
@@ -89,22 +91,28 @@ def compute_response_curve(intensites,log_exposure_times,weighting_func,smooth_l
 
 def radiance_map(images,compute_response_curve,weighting_func,log_exposure_times):
  #get the radiance map from the response curve
-  num_images_=len(log_exposure_times)
+  num_images=len(log_exposure_times)
   img_shape =images[0].shape
   image_radiance_map =np.zeros(img_shape,dtype=np.float64)
   
-  for i in range(img_shape[0]):
-      for j in  range(img_shape[1]):
-          
-
-          g = np.array([compute_response_curve(images[k][i,j]) for k in range(num_images) ])
-          w=  np.array([weighting_func(images[k][i,j] )for k in range(num_images)   ])
+  #for i in range(img_shape[0]):
+   #   for j in  range( img_shape[1]):
+  for  i in range(256):
+      for j in range(256): 
+         # g=compute_response_curve(images[k][i][j] for k in range(num_images))
+         # w=weighting_func(images[k][i][j] for k in range(num_images))
+          g = np.array([response_curve[images[k][i][j]] for k in range(num_images) ])
+         # g=compute_response_curve
+          w=  np.array([weighting_func(images[k][i][j] for k in range(num_images)) ])
 
           weight_sum=np.sum(w)
-          if sum > 0: 
-            image_radiance_map[i,j]=  np.sum(w* (g - log_exposure_times)/weight_sum)
+         # weight_sum=0
+          if (weight_sum > 0): 
+                #how do I KNOW WHICH LOG EXPOSURE TIME TO SUBTRACT
+                image_radiance_map[i][j]=  np.sum(np.dot(w[0],np.divide((g - log_exposure_times[0] ),weight_sum)))
           else :
-            image_radiance_map[i,j]=np.sum(g[num_images//2] - log_exposure_times[num_images//2])            
+               
+               image_radiance_map[i][j]=np.sum(g[num_images//2] - log_exposure_times[num_images//2])            
   return image_radiance_map  
 
 
@@ -124,15 +132,24 @@ def local_tone_mapping(image,gamma):
 imglist=[]        
 for i in range(5): 
  img=np.array(Image.open('./images/ev'+str(i)+'.jpg'))
+ #np.reshape(img,(256,256,3))
  imglist.append(img)
 log_exp=[1/17,1/10,1/10,1/33,1/33]
 
 #print(len(imglist))
 imgstack=np.stack(imglist)
 #print(imgstack)             
-compute_response_curve(sample_pixels(imgstack),log_exp,weights,0.6)             
-        
-       
+response_curve=compute_response_curve(sample_pixels(imgstack),log_exp,weights,0.6)             
+
+radiance_map=radiance_map(imgstack,response_curve,weights,log_exp)
+
+print("response curve {}\n radiance map {}".format(response_curve,radiance_map))
+
+print('response curve len {}  radiance map len {}  '.format(len(response_curve),len(radiance_map)))
+
+#f= open('./images/ev0.jpg','rb')
+#a=f.read()      
+#print(a[:350])      
 
 
          

@@ -1,5 +1,9 @@
 import numpy as np 
 import math
+from PIL import Image
+
+
+
 def weights(pixel_values):
 #the weighting function for calculating weights from pixels
  zmin,zmax=0,255
@@ -22,22 +26,31 @@ def sample_pixels(images):
       num_images=len(images)
       num_intensities=zmax-zmin+1
 
-      intensites=np.zeros((num_intensities,num_images),dtype=np.int64)
-      mid_img=images[num_images//2]
+      intensites=np.zeros((num_intensities,num_images,3),dtype=np.int64)
+     # intensites=[]
+      mid_img=images[math.ceil(num_images/2)]
+      print(mid_img.shape)
       for i in range(zmin,zmax+1):
-        rows,cols=np.where(mid_img==i)
-         
-        if(len(rows)!=0):
-            index=np.random.randint(len(rows))
+        rows,cols=mid_img.shape[0],mid_img.shape[1]
+        print('rows : {}  cols {}'.format(rows,cols))
+        if((rows)!=0):
+            idxi=np.random.randint((rows))
+            idxj=np.random.randint((cols))
             for j in range(num_images):
-                intensites[i,j]=images[j][rows[idx],cols[idx]]
+                image=images[j]
+               # print(i,j)
+                pixel=image[idxi][idxj]
+                print(pixel)
+                for k in range(3):
+                 intensites[i][j][k]=pixel[k]
+                 
       return intensites
 
 def compute_response_curve(intensites,log_exposure_times,weighting_func,smooth_lambda ): 
 # get the response curve 
     zmin,zmax=0,255
     num_images=len(log_exposure_times)
-    num_samples=len(intensites.shape[0])
+    num_samples=len(intensites)
     intensity_range=zmax-zmin
     mat_A=np.zeros((num_samples*num_images+intensity_range,num_samples+intensity_range+1),dtype=np.int64)
     mat_B=np.zeros((mat_A.shape[0],1),dtype=np.int64)
@@ -107,14 +120,17 @@ def local_tone_mapping(image,gamma):
              image[i][j]=math.pow(image[i][j],gamma[i][j])
 
      # each pixel is tone mapped differently accoring to location         
-             
-     
 
-    
+imglist=[]        
+for i in range(5): 
+ img=np.array(Image.open('./images/ev'+str(i)+'.jpg'))
+ imglist.append(img)
+log_exp=[1/17,1/10,1/10,1/33,1/33]
 
-
-             
-             
+#print(len(imglist))
+imgstack=np.stack(imglist)
+#print(imgstack)             
+compute_response_curve(sample_pixels(imgstack),log_exp,weights,0.6)             
         
        
 
